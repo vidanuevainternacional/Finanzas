@@ -1,0 +1,858 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Finanzas Vida Nueva Internacional</title>
+<link rel="icon" href="assets/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: sticky header + tab bar, one working column (max 1180px); cards only for objects (eventos, formularios). Colores tomados del logo: azul marino, rojo llama, azul cielo. */
+:root{
+  --bg:#F2F4FA; --surface:#FFFFFF; --surface-2:#F7F8FD; --ink:#141847; --muted:#5A6085; --line:#DCE0EE;
+  --navy:#1B1F7A; --navy-solid:#1B1F7A; --on-navy:#FFFFFF; --navy-tint:#E6E8F7;
+  --red:#D71F26; --red-tint:#FCE8E9; --sky:#1C8ACB; --sky-tint:#E2F1FA;
+  --good:#17804A; --good-tint:#E1F3E8; --warn:#B86A00; --warn-tint:#FBF0DD;
+  --shadow:0 1px 2px rgba(20,24,71,.06),0 4px 16px rgba(20,24,71,.05);
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1030; --surface:#161A44; --surface-2:#1B2050; --ink:#E8EAFB; --muted:#A0A5CC; --line:#2B3067;
+  --navy:#A9AEFF; --navy-solid:#3D44C8; --on-navy:#FFFFFF; --navy-tint:#252B6B;
+  --red:#FF6167; --red-tint:#3D1A2A; --sky:#62BDF3; --sky-tint:#16345A;
+  --good:#52C986; --good-tint:#153D32; --warn:#F2AE45; --warn-tint:#3D2F1A;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1030; --surface:#161A44; --surface-2:#1B2050; --ink:#E8EAFB; --muted:#A0A5CC; --line:#2B3067;
+  --navy:#A9AEFF; --navy-solid:#3D44C8; --on-navy:#FFFFFF; --navy-tint:#252B6B;
+  --red:#FF6167; --red-tint:#3D1A2A; --sky:#62BDF3; --sky-tint:#16345A;
+  --good:#52C986; --good-tint:#153D32; --warn:#F2AE45; --warn-tint:#3D2F1A;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance;letter-spacing:.2px}
+h2{font-size:1.65rem;color:var(--navy)}
+h3{font-size:1.2rem}
+.eyebrow{font-family:var(--f-display);font-weight:600;font-size:.8rem;letter-spacing:.32em;text-transform:uppercase;color:var(--red)}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+
+/* Header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:10px 0;display:flex;flex-direction:column;gap:8px}
+.brand{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.plate{background:#fff;border-radius:8px;padding:4px 8px;display:flex;border:1px solid var(--line)}
+.plate img{height:44px;width:auto;display:block}
+.brand-txt{display:flex;flex-direction:column;line-height:1.05}
+.brand-txt b{font-family:var(--f-display);font-size:1.55rem;color:var(--navy);font-weight:700}
+.brand-txt span{font-family:var(--f-display);font-size:.72rem;letter-spacing:.38em;color:var(--red);font-weight:600}
+.mode{margin-left:auto;font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.mode i{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}
+.mode.ok i{background:var(--good)} .mode.local i{background:var(--warn)}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin-inline:-4px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{border:0;background:none;padding:10px 14px 11px;cursor:pointer;font-family:var(--f-display);font-weight:600;font-size:1.05rem;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;letter-spacing:.3px}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--navy);border-bottom-color:var(--red)}
+.tab:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.day:focus-visible,.evcard:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+
+main{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:22px 60px;display:flex;flex-direction:column;gap:22px}
+.banner{border-radius:var(--r);padding:10px 14px;font-size:.9rem;background:var(--warn-tint);color:var(--ink);border:1px solid var(--line)}
+
+/* Controls */
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:6px;min-height:38px;transition:background .15s,border-color .15s}
+.btn:hover{border-color:var(--navy)}
+.btn.primary{background:var(--navy-solid);border-color:var(--navy-solid);color:var(--on-navy)}
+.btn.primary:hover{filter:brightness(1.12)}
+.btn.good{color:var(--good)} .btn.good:hover{border-color:var(--good);background:var(--good-tint)}
+.btn.warn{color:var(--warn)} .btn.warn:hover{border-color:var(--warn);background:var(--warn-tint)}
+.btn.danger{color:var(--red)} .btn.danger:hover{border-color:var(--red);background:var(--red-tint)}
+.btn.sm{padding:4px 10px;min-height:32px;font-size:.85rem}
+.btn.ghost{border-color:transparent;background:none}
+.btn.ghost:hover{background:var(--surface-2);border-color:var(--line)}
+label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;font-weight:600;color:var(--muted);min-width:0}
+input,select,textarea{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px;min-height:38px;font-size:.95rem;font-weight:400;color:var(--ink);width:100%;min-width:0}
+textarea{min-height:64px;resize:vertical}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;align-items:end}
+.fgrid .wide{grid-column:1/-1}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row.between{justify-content:space-between}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);min-width:0}
+.section{display:flex;flex-direction:column;gap:12px;min-width:0}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:.85rem;cursor:pointer;font-weight:600;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--navy-solid);border-color:var(--navy-solid);color:var(--on-navy)}
+
+/* Status pills */
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 10px;font-size:.78rem;font-weight:700;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.pagado{background:var(--good-tint);color:var(--good)}
+.pill.abono{background:var(--warn-tint);color:var(--warn)}
+.pill.no{background:var(--red-tint);color:var(--red)}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi .lbl{font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.kpi .val{font-family:var(--f-display);font-size:1.9rem;font-weight:700;line-height:1.1;overflow-wrap:anywhere}
+.kpi.main{background:var(--navy-solid);border-color:var(--navy-solid);color:var(--on-navy)}
+.kpi.main .lbl{color:var(--on-navy);opacity:.8}
+.kpi.main .val{font-size:2.5rem}
+.kpi .sub{font-size:.82rem;color:var(--muted)}
+.kpi.main .sub{color:var(--on-navy);opacity:.8}
+.in{color:var(--good)} .out{color:var(--red)} .due{color:var(--warn)}
+.grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+@media (max-width:860px){.kpis{grid-template-columns:1fr 1fr}.kpi.main{grid-column:1/-1}.grid2{grid-template-columns:1fr}}
+
+/* Tables */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th{text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+td.r,th.r{text-align:right}
+tr:last-child td{border-bottom:0}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:var(--r)}
+.empty b{display:block;color:var(--ink);font-size:1.05rem;margin-bottom:4px}
+
+/* Stacked bar */
+.stack{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--surface-2)}
+.stack span{display:block;height:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.progress{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.progress span{display:block;height:100%;background:var(--good)}
+
+/* Eventos */
+.evgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.evcard{display:flex;gap:14px;cursor:pointer;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.evcard:hover{border-color:var(--navy)}
+.datebox{flex:none;width:58px;border-radius:8px;background:var(--navy-solid);color:var(--on-navy);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0;font-family:var(--f-display);line-height:1}
+.datebox b{font-size:1.8rem}
+.datebox span{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;margin-top:3px}
+.datebox.past{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.evbody{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+.evbody h3{overflow-wrap:anywhere}
+.kv{display:flex;justify-content:space-between;gap:8px;font-size:.88rem}
+.kv span:first-child{color:var(--muted)}
+
+.clients{display:flex;flex-direction:column}
+.client{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1.4fr) minmax(0,1fr) auto;gap:6px 16px;padding:14px 4px;border-bottom:1px solid var(--line);align-items:start}
+.client:last-child{border-bottom:0}
+.client .who b{font-size:1rem;overflow-wrap:anywhere}
+.client .money{text-align:right}
+.client .money .t{font-family:var(--f-display);font-size:1.25rem;font-weight:700}
+.client .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.pays{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
+.pay{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:2px 4px 2px 8px}
+.pay button{border:0;background:none;cursor:pointer;color:var(--muted);padding:2px 6px;border-radius:4px;font-size:.9rem;line-height:1}
+.pay button:hover{color:var(--red);background:var(--red-tint)}
+@media (max-width:760px){.client{grid-template-columns:1fr auto}.client .prod{grid-column:1/-1;order:3}.client .acts{grid-column:1/-1;justify-content:flex-start;order:4}.pays{order:5}}
+.totalbox{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--navy-tint);border-radius:8px;padding:10px 14px;font-weight:600}
+.totalbox b{font-family:var(--f-display);font-size:1.4rem;color:var(--navy)}
+
+/* Calendario */
+.calhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.calhead h2{min-width:190px;text-transform:capitalize}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.dow{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;text-align:center;padding:4px 0}
+.day{min-height:104px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:3px;cursor:pointer;text-align:left;min-width:0;overflow:hidden}
+.day.out-m{background:transparent;border-style:dashed;opacity:.5}
+.day .dn{font-weight:700;font-size:.85rem;color:var(--muted)}
+.day.today .dn{background:var(--red);color:#fff;border-radius:999px;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.day.has-ev{border:2px solid var(--navy-solid);background:var(--navy-tint)}
+.day.sel{outline:2px solid var(--sky);outline-offset:1px}
+.tag{font-size:.72rem;font-weight:700;border-radius:4px;padding:2px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag.ev{background:var(--navy-solid);color:var(--on-navy)}
+.tag.pg{background:var(--good-tint);color:var(--good)}
+.tag.of{background:var(--sky-tint);color:var(--sky)}
+.tag.ga{background:var(--red-tint);color:var(--red)}
+.dots{display:none;gap:3px;flex-wrap:wrap}
+.dots i{width:7px;height:7px;border-radius:50%}
+@media (max-width:640px){.day{min-height:58px;padding:4px}.day .tag{display:none}.dots{display:flex}.calhead h2{min-width:0}}
+.dayitems{display:flex;flex-direction:column;gap:8px}
+.dayitem{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);flex-wrap:wrap}
+
+/* Chart */
+.chart svg{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font-size:11px;font-family:var(--f-body)}
+
+/* Modal & toast */
+.overlay{position:fixed;inset:0;background:rgba(10,12,40,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal{background:var(--surface);border-radius:12px;width:min(520px,100%);max-height:90vh;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:14px;border:1px solid var(--line)}
+.modal .row.end{justify-content:flex-end}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;z-index:60;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+@media (prefers-reduced-motion:no-preference){.evcard:hover{transform:translateY(-1px)}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <div class="plate"><img src="assets/logo.jpg" alt="Iglesia Cristiana Vida Nueva Internacional"></div>
+      <div class="brand-txt"><b>Finanzas</b><span>VIDA NUEVA INTERNACIONAL</span></div>
+      <div class="mode" id="mode"><i></i><span>Conectando…</span></div>
+    </div>
+    <nav class="tabs" role="tablist" id="tabs">
+      <button class="tab" role="tab" data-tab="panel" id="t-panel">Panel</button>
+      <button class="tab" role="tab" data-tab="eventos" id="t-eventos">Eventos de venta</button>
+      <button class="tab" role="tab" data-tab="calendario" id="t-calendario">Calendario</button>
+      <button class="tab" role="tab" data-tab="ofrendas" id="t-ofrendas">Ofrendas</button>
+      <button class="tab" role="tab" data-tab="gastos" id="t-gastos">Gastos</button>
+      <button class="tab" role="tab" data-tab="ajustes" id="t-ajustes">Ajustes</button>
+    </nav>
+  </div>
+</header>
+<main>
+  <div id="banner" hidden></div>
+  <div id="view" class="section"></div>
+</main>
+<div id="modal-root"></div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+(() => {
+const DEFAULT_METODOS = ["Nequi", "Banco Caja Social", "Efectivo"];
+const TIPOS_OFRENDA = ["Ofrenda", "Diezmo", "Primicia", "Pro-templo", "Misiones", "Acción de gracias", "Otra"];
+const CATS_GASTO = ["Materiales / insumos", "Servicios públicos", "Arriendo", "Transporte", "Alimentación", "Ayuda social", "Mantenimiento", "Sonido y medios", "Otro"];
+const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const MESES_L = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const LS = "fvni-datos-v1";
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const COP = new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 });
+const fmt = n => COP.format(Math.round(Number(n) || 0));
+const pad = n => String(n).padStart(2, "0");
+const hoy = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const fecha = f => { if (!f) return "Sin fecha"; const [y,m,d] = f.split("-"); return `${+d} ${MESES[+m-1]} ${y}`; };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const n0 = v => { const x = Number(v); return isFinite(x) ? x : 0; };
+const sum = (a, f) => a.reduce((s, x) => s + n0(f(x)), 0);
+const clone = o => JSON.parse(JSON.stringify(o));
+
+const state = { eventos: [], ofrendas: [], gastos: [], metodos: [...DEFAULT_METODOS], loaded: false, mode: "cargando" };
+const ui = { tab: "panel", evSel: null, evFiltro: "todos", evBuscar: "", periodo: "todo", calY: new Date().getFullYear(), calM: new Date().getMonth(), calDia: hoy(), editOf: null, editGa: null, ofBuscar: "", gaBuscar: "" };
+try { const s = JSON.parse(localStorage.getItem("fvni-ui") || "{}"); if (s.periodo) ui.periodo = s.periodo; } catch {}
+
+/* ---------- Cálculos ---------- */
+const cTotal = c => n0(c.cantidad) * n0(c.valorUnit);
+const cPagado = c => sum(c.pagos || [], p => p.monto);
+const cEstado = c => { const t = cTotal(c), p = cPagado(c); if (p <= 0) return "no"; if (p >= t) return "pagado"; return "abono"; };
+const EST_TXT = { pagado: "Pagado", abono: "Abono parcial", no: "No pagado" };
+const evTot = e => { const cl = e.clientes || []; const total = sum(cl, cTotal), pagado = sum(cl, cPagado); return { total, pagado, pendiente: Math.max(0, total - pagado), n: cl.length }; };
+const getEv = id => state.eventos.find(e => e.id === id);
+
+function movimientos() {
+  const out = [];
+  for (const e of state.eventos) for (const c of e.clientes || []) for (const p of c.pagos || [])
+    out.push({ fecha: p.fecha, tipo: "venta", desc: `${c.nombre} · ${e.nombre}`, monto: n0(p.monto), metodo: p.metodo || "Sin método" });
+  for (const o of state.ofrendas) out.push({ fecha: o.fecha, tipo: "ofrenda", desc: `${o.tipo || "Ofrenda"} · ${o.persona || "Anónimo"}`, monto: n0(o.monto), metodo: o.metodo || "Sin método" });
+  for (const g of state.gastos) out.push({ fecha: g.fecha, tipo: "gasto", desc: `${g.concepto} · ${g.categoria || ""}`, monto: -n0(g.monto), metodo: g.metodo || "Sin método" });
+  return out.sort((a, b) => (b.fecha || "").localeCompare(a.fecha || ""));
+}
+function enPeriodo(f) {
+  if (ui.periodo === "todo") return true;
+  if (!f) return false;
+  const h = hoy();
+  if (ui.periodo === "mes") return f.slice(0, 7) === h.slice(0, 7);
+  if (ui.periodo === "anio") return f.slice(0, 4) === h.slice(0, 4);
+  return true;
+}
+
+/* ---------- Almacenamiento ---------- */
+let db = null;
+const queues = {};
+function saveLocal() { try { localStorage.setItem(LS, JSON.stringify({ eventos: state.eventos, ofrendas: state.ofrendas, gastos: state.gastos, metodos: state.metodos })); } catch {} }
+function loadLocal() {
+  try { const d = JSON.parse(localStorage.getItem(LS) || "null"); if (d) { state.eventos = d.eventos || []; state.ofrendas = d.ofrendas || []; state.gastos = d.gastos || []; state.metodos = d.metodos?.length ? d.metodos : [...DEFAULT_METODOS]; } } catch {}
+}
+function enqueue(path, fn) {
+  queues[path] = (queues[path] || Promise.resolve()).then(fn).catch(e => {
+    toast(e?.code === "invalid_argument" ? "No tienes permiso para guardar cambios aquí." : "No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.");
+  });
+}
+function persist(col, id, data) {
+  const arr = state[col]; const i = arr.findIndex(x => x.id === id);
+  if (data === null) { if (i >= 0) arr.splice(i, 1); }
+  else { const rec = { ...data, id }; if (i >= 0) arr[i] = rec; else arr.push(rec); }
+  refresh();
+  if (!db) { saveLocal(); return; }
+  const ref = db.collection(col).doc(id);
+  const body = data === null ? null : (() => { const b = { ...data }; delete b.id; return b; })();
+  enqueue(col + "/" + id, () => body === null ? ref.delete() : ref.set(body));
+}
+function saveMetodos(list) {
+  state.metodos = list; refresh(); fillMetodoSelects();
+  if (!db) { saveLocal(); return; }
+  enqueue("config/general", () => db.doc("config/general").set({ metodos: list }));
+}
+
+/* ---------- UI helpers ---------- */
+let toastT;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2800); }
+function metodoOptions(sel) {
+  const list = [...state.metodos]; if (sel && !list.includes(sel)) list.push(sel);
+  return list.map(m => `<option ${m === sel ? "selected" : ""}>${esc(m)}</option>`).join("");
+}
+function fillMetodoSelects() {
+  $$("select[data-metodo]").forEach(s => { const v = s.value; s.innerHTML = metodoOptions(v || state.metodos[0]); });
+}
+function modal(title, body, submitTxt, onSubmit, danger) {
+  const root = $("#modal-root");
+  root.innerHTML = `<div class="overlay" id="ov"><form class="modal" id="mform" novalidate>
+    <h3>${esc(title)}</h3>${body}
+    <div class="row end"><button type="button" class="btn" id="mcancel">Cancelar</button>
+    <button class="btn ${danger ? "danger" : "primary"}" id="mok">${esc(submitTxt)}</button></div></form></div>`;
+  const close = () => { root.innerHTML = ""; document.removeEventListener("keydown", onKey); };
+  const onKey = e => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", onKey);
+  $("#mcancel").onclick = close;
+  $("#ov").addEventListener("mousedown", e => { if (e.target.id === "ov") close(); });
+  $("#mform").onsubmit = e => { e.preventDefault(); const f = new FormData(e.target); const r = onSubmit(Object.fromEntries(f), e.target); if (r !== false) close(); };
+  setTimeout(() => { const first = $("#mform input, #mform select"); (first || $("#mok")).focus(); }, 30);
+}
+function confirmar(title, text, okTxt, fn) { modal(title, `<p class="muted" style="margin:0">${text}</p>`, okTxt, () => { fn(); }, true); }
+function fieldErr(form, name, msg) { toast(msg); const el = form.querySelector(`[name="${name}"]`); el && el.focus(); return false; }
+
+/* ---------- Tabs ---------- */
+const views = {};
+function showTab(t) {
+  if (!views[t]) t = "panel";
+  ui.tab = t;
+  $$(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === t ? "true" : "false"));
+  const v = $("#view"); v.innerHTML = views[t].shell(); views[t].bind?.(v); views[t].data();
+  try { history.replaceState(null, "", "#" + t); } catch {}
+}
+function refresh() { views[ui.tab]?.data(); }
+$("#tabs").addEventListener("click", e => { const b = e.target.closest(".tab"); if (b) { if (b.dataset.tab === "eventos") ui.evSel = null; showTab(b.dataset.tab); window.scrollTo(0, 0); } });
+
+/* ---------- PANEL ---------- */
+views.panel = {
+  shell: () => `
+    <div class="head"><div><div class="eyebrow">Resumen</div><h2>Panel financiero</h2></div>
+      <div class="chips" id="periodo">
+        ${[["todo","Todo"],["anio","Este año"],["mes","Este mes"]].map(([k,l]) => `<button class="chip" data-p="${k}" aria-pressed="${ui.periodo===k}">${l}</button>`).join("")}
+      </div></div>
+    <div id="p-body"></div>`,
+  bind: v => { $("#periodo", v).onclick = e => { const b = e.target.closest("[data-p]"); if (!b) return; ui.periodo = b.dataset.p; try { localStorage.setItem("fvni-ui", JSON.stringify({ periodo: ui.periodo })); } catch {} $$("#periodo .chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.p === ui.periodo)); refresh(); }; },
+  data: () => {
+    const body = $("#p-body"); if (!body) return;
+    const mv = movimientos();
+    const saldo = sum(mv, m => m.monto);
+    const per = mv.filter(m => enPeriodo(m.fecha));
+    const ventas = sum(per.filter(m => m.tipo === "venta"), m => m.monto);
+    const ofr = sum(per.filter(m => m.tipo === "ofrenda"), m => m.monto);
+    const egr = -sum(per.filter(m => m.tipo === "gasto"), m => m.monto);
+    const ing = ventas + ofr;
+    const porCobrar = sum(state.eventos, e => evTot(e).pendiente);
+    const perTxt = { todo: "desde el inicio", anio: "en " + hoy().slice(0,4), mes: "en " + MESES_L[new Date().getMonth()] }[ui.periodo];
+
+    // saldo por método
+    const met = {};
+    for (const m of mv) { const k = m.metodo; met[k] ??= { in: 0, out: 0 }; if (m.monto >= 0) met[k].in += m.monto; else met[k].out -= m.monto; }
+    const metRows = Object.entries(met).sort((a, b) => (b[1].in - b[1].out) - (a[1].in - a[1].out));
+
+    const prox = state.eventos.filter(e => (e.fecha || "") >= hoy()).sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 4);
+    const pendientes = state.eventos.filter(e => evTot(e).pendiente > 0);
+
+    body.innerHTML = `
+    <div class="section">
+      <div class="kpis">
+        <div class="kpi main"><span class="lbl">Saldo disponible</span><span class="val num">${fmt(saldo)}</span><span class="sub">Todos los ingresos menos todos los gastos</span></div>
+        <div class="kpi"><span class="lbl">Ingresos</span><span class="val num in">${fmt(ing)}</span><span class="sub">${perTxt}</span></div>
+        <div class="kpi"><span class="lbl">Egresos</span><span class="val num out">${fmt(egr)}</span><span class="sub">${perTxt}</span></div>
+        <div class="kpi"><span class="lbl">Por cobrar</span><span class="val num due">${fmt(porCobrar)}</span><span class="sub">${pendientes.length} evento${pendientes.length===1?"":"s"} con saldo pendiente</span></div>
+      </div>
+      <div class="grid2">
+        <div class="card section">
+          <div class="row between"><h3>Ingresos y egresos por mes</h3><div class="legend"><span><i style="background:var(--good)"></i>Ingresos</span><span><i style="background:var(--red)"></i>Egresos</span></div></div>
+          <div class="chart">${chartMeses(mv)}</div>
+        </div>
+        <div class="card section">
+          <h3>De dónde vienen los ingresos</h3>
+          ${ing > 0 ? `<div class="stack"><span style="width:${ventas/ing*100}%;background:var(--navy-solid)"></span><span style="width:${ofr/ing*100}%;background:var(--sky)"></span></div>
+          <div class="legend"><span><i style="background:var(--navy-solid)"></i>Ventas ${fmt(ventas)}</span><span><i style="background:var(--sky)"></i>Ofrendas ${fmt(ofr)}</span></div>` : `<p class="muted small" style="margin:0">Aún no hay ingresos ${perTxt}.</p>`}
+          <h3 style="margin-top:8px">Saldo por método de pago</h3>
+          ${metRows.length ? `<div class="tbl-wrap"><table class="num"><thead><tr><th>Método</th><th class="r">Entradas</th><th class="r">Salidas</th><th class="r">Saldo</th></tr></thead><tbody>
+            ${metRows.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="r in">${fmt(v.in)}</td><td class="r out">${fmt(v.out)}</td><td class="r"><b>${fmt(v.in - v.out)}</b></td></tr>`).join("")}
+          </tbody></table></div>` : `<p class="muted small" style="margin:0">Cuando registres pagos, ofrendas o gastos verás aquí cuánto hay en Nequi, banco y efectivo.</p>`}
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card section">
+          <div class="row between"><h3>Últimos movimientos</h3></div>
+          ${per.length ? `<div class="tbl-wrap"><table><thead><tr><th>Fecha</th><th>Detalle</th><th>Método</th><th class="r">Valor</th></tr></thead><tbody>
+          ${per.slice(0, 10).map(m => `<tr><td class="num" style="white-space:nowrap">${fecha(m.fecha)}</td><td>${tipoTag(m.tipo)} ${esc(m.desc)}</td><td class="muted">${esc(m.metodo)}</td><td class="r num ${m.monto<0?"out":"in"}" style="white-space:nowrap">${m.monto<0?"−":"+"}${fmt(Math.abs(m.monto))}</td></tr>`).join("")}
+          </tbody></table></div>` : `<div class="empty"><b>Sin movimientos todavía</b>Registra un pago en un evento, una ofrenda o un gasto.</div>`}
+        </div>
+        <div class="card section">
+          <h3>Próximos eventos</h3>
+          ${prox.length ? prox.map(e => { const t = evTot(e); return `<button class="evcard" data-ev="${e.id}" style="box-shadow:none">${dateBox(e.fecha)}<div class="evbody"><b>${esc(e.nombre)}</b><div class="kv"><span>Por cobrar</span><span class="num due">${fmt(t.pendiente)}</span></div><div class="progress"><span style="width:${t.total?t.pagado/t.total*100:0}%"></span></div></div></button>`; }).join("")
+            : `<div class="empty"><b>No hay eventos próximos</b><button class="btn primary sm" id="p-new" style="margin-top:8px">Crear evento de venta</button></div>`}
+        </div>
+      </div>
+    </div>`;
+    body.querySelectorAll("[data-ev]").forEach(b => b.onclick = () => { ui.evSel = b.dataset.ev; showTab("eventos"); });
+    $("#p-new", body)?.addEventListener("click", () => { showTab("eventos"); nuevoEvento(); });
+  }
+};
+function tipoTag(t) { const m = { venta: ["pg", "Venta"], ofrenda: ["of", "Ofrenda"], gasto: ["ga", "Gasto"] }[t]; return `<span class="tag ${m[0]}" style="display:inline-block;vertical-align:1px">${m[1]}</span>`; }
+function dateBox(f) { if (!f) return `<div class="datebox past"><b>–</b><span>s/f</span></div>`; const [y,m,d] = f.split("-"); return `<div class="datebox ${f < hoy() ? "past" : ""}"><b>${+d}</b><span>${MESES[+m-1]}</span></div>`; }
+
+function chartMeses(mv) {
+  const now = new Date(); const months = [];
+  for (let i = 5; i >= 0; i--) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); months.push({ k: `${d.getFullYear()}-${pad(d.getMonth()+1)}`, l: MESES[d.getMonth()], ing: 0, egr: 0 }); }
+  for (const m of mv) { const b = months.find(x => x.k === (m.fecha || "").slice(0, 7)); if (!b) continue; if (m.monto >= 0) b.ing += m.monto; else b.egr -= m.monto; }
+  const max = Math.max(...months.map(m => Math.max(m.ing, m.egr)), 0);
+  const W = 600, H = 230, L = 64, B = 26, T = 12, cw = (W - L - 8) / 6;
+  if (max <= 0) return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Sin datos"><text x="${W/2}" y="${H/2}" text-anchor="middle">Sin movimientos en los últimos 6 meses</text></svg>`;
+  const step = niceStep(max / 3); const top = Math.ceil(max / step) * step;
+  const y = v => T + (H - T - B) * (1 - v / top);
+  const short = v => v >= 1e6 ? (v/1e6).toLocaleString("es-CO",{maximumFractionDigits:1}) + " M" : v >= 1e3 ? Math.round(v/1e3) + " mil" : String(v);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ingresos y egresos de los últimos seis meses">`;
+  for (let v = 0; v <= top + 1; v += step) s += `<line x1="${L}" x2="${W-8}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">$${short(v)}</text>`;
+  months.forEach((m, i) => {
+    const x0 = L + i * cw, bw = Math.min(26, cw * 0.32);
+    const xi = x0 + cw/2 - bw - 2, xe = x0 + cw/2 + 2;
+    s += `<rect x="${xi}" y="${y(m.ing)}" width="${bw}" height="${Math.max(0, y(0)-y(m.ing))}" rx="3" fill="var(--good)"><title>${m.l}: ingresos ${fmt(m.ing)}</title></rect>`;
+    s += `<rect x="${xe}" y="${y(m.egr)}" width="${bw}" height="${Math.max(0, y(0)-y(m.egr))}" rx="3" fill="var(--red)"><title>${m.l}: egresos ${fmt(m.egr)}</title></rect>`;
+    s += `<text x="${x0+cw/2}" y="${H-8}" text-anchor="middle" style="text-transform:capitalize">${m.l}</text>`;
+  });
+  return s + `</svg>`;
+}
+function niceStep(x) { const p = Math.pow(10, Math.floor(Math.log10(x))); const f = x / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; }
+
+/* ---------- EVENTOS ---------- */
+function nuevoEvento(ev) {
+  const e = ev || {};
+  modal(ev ? "Editar evento" : "Nuevo evento de venta", `
+    <div class="fgrid">
+      <label class="wide">Nombre del evento<input name="nombre" id="m-ev-nombre" value="${esc(e.nombre)}" placeholder="Ej: Venta de tamales pro-templo" required></label>
+      <label>Fecha del evento<input type="date" name="fecha" id="m-ev-fecha" value="${esc(e.fecha || hoy())}" required></label>
+      <label>Lugar<input name="lugar" id="m-ev-lugar" value="${esc(e.lugar)}" placeholder="Templo principal"></label>
+      <label class="wide">Descripción<textarea name="descripcion" id="m-ev-desc" placeholder="Qué se vende, a quién va dirigido…">${esc(e.descripcion)}</textarea></label>
+    </div>`, ev ? "Guardar cambios" : "Crear evento", (d, form) => {
+      if (!d.nombre.trim()) return fieldErr(form, "nombre", "Escribe el nombre del evento.");
+      if (!d.fecha) return fieldErr(form, "fecha", "Elige la fecha del evento.");
+      const id = ev?.id || uid();
+      const base = ev ? clone(ev) : { clientes: [], creado: new Date().toISOString() };
+      Object.assign(base, { nombre: d.nombre.trim(), fecha: d.fecha, lugar: d.lugar.trim(), descripcion: d.descripcion.trim() });
+      persist("eventos", id, base);
+      if (!ev) { ui.evSel = id; showTab("eventos"); toast("Evento creado. Ahora agrega tus clientes."); } else toast("Evento actualizado");
+    });
+}
+views.eventos = {
+  shell: () => {
+    if (ui.evSel && getEv(ui.evSel)) return shellEventoDetalle();
+    ui.evSel = null;
+    return `<div class="head"><div><div class="eyebrow">Ventas</div><h2>Eventos de venta</h2></div>
+      <button class="btn primary" id="ev-new">+ Nuevo evento</button></div>
+      <div id="ev-list"></div>`;
+  },
+  bind: v => {
+    $("#ev-new", v)?.addEventListener("click", () => nuevoEvento());
+    if (ui.evSel) bindEventoDetalle(v);
+  },
+  data: () => {
+    if (ui.evSel) { if (!getEv(ui.evSel)) { ui.evSel = null; showTab("eventos"); return; } return dataEventoDetalle(); }
+    const box = $("#ev-list"); if (!box) return;
+    if (!state.loaded) { box.innerHTML = `<div class="empty">Cargando eventos…</div>`; return; }
+    if (!state.eventos.length) { box.innerHTML = `<div class="empty"><b>Todavía no hay eventos</b>Crea tu primer evento de venta (por ejemplo, una venta de empanadas) y agrega a cada cliente con lo que te debe.</div>`; return; }
+    const h = hoy();
+    const list = [...state.eventos].sort((a, b) => { const fa = a.fecha || "", fb = b.fecha || ""; const pa = fa >= h, pb = fb >= h; if (pa !== pb) return pa ? -1 : 1; return pa ? fa.localeCompare(fb) : fb.localeCompare(fa); });
+    box.innerHTML = `<div class="evgrid">${list.map(e => { const t = evTot(e); return `
+      <button class="evcard" data-ev="${e.id}">${dateBox(e.fecha)}
+        <div class="evbody"><h3>${esc(e.nombre)}</h3>
+          <span class="muted small">${fecha(e.fecha)}${e.lugar ? " · " + esc(e.lugar) : ""} · ${t.n} cliente${t.n===1?"":"s"}</span>
+          <div class="kv num"><span>Valor total</span><b>${fmt(t.total)}</b></div>
+          <div class="kv num"><span>Recaudado</span><span class="in">${fmt(t.pagado)}</span></div>
+          <div class="kv num"><span>Por cobrar</span><span class="due">${fmt(t.pendiente)}</span></div>
+          <div class="progress"><span style="width:${t.total ? t.pagado/t.total*100 : 0}%"></span></div>
+        </div></button>`; }).join("")}</div>`;
+    box.querySelectorAll("[data-ev]").forEach(b => b.onclick = () => { ui.evSel = b.dataset.ev; ui.evFiltro = "todos"; ui.evBuscar = ""; showTab("eventos"); window.scrollTo(0, 0); });
+  }
+};
+function shellEventoDetalle() {
+  return `<div class="row"><button class="btn ghost sm" id="ev-back">← Todos los eventos</button></div>
+    <div id="ev-head"></div>
+    <div class="card section">
+      <h3>Agregar cliente</h3>
+      <form id="cl-form" class="section" novalidate>
+        <div class="fgrid">
+          <label>Cliente<input name="nombre" id="cl-nombre" placeholder="Nombre completo" list="dl-personas" autocomplete="off"></label>
+          <label>Teléfono (opcional)<input name="telefono" id="cl-tel" inputmode="tel"></label>
+          <label>Producto o servicio<input name="producto" id="cl-prod" placeholder="Ej: Tamal tolimense" list="dl-productos" autocomplete="off"></label>
+          <label>Cantidad<input type="number" name="cantidad" id="cl-cant" min="0" step="1" value="1"></label>
+          <label>Valor por unidad (COP)<input type="number" name="valorUnit" id="cl-vu" min="0" step="50" placeholder="0"></label>
+          <label>Estado del pago<select name="estado" id="cl-estado"><option value="no">No pagado</option><option value="abono">Abono parcial</option><option value="pagado">Pagado</option></select></label>
+          <label data-pg hidden>Valor del abono<input type="number" name="abono" id="cl-abono" min="0" step="50"></label>
+          <label data-pg hidden>Método de pago<select name="metodo" id="cl-metodo" data-metodo>${metodoOptions(state.metodos[0])}</select></label>
+          <label data-pg hidden>Fecha del pago<input type="date" name="fpago" id="cl-fpago" value="${hoy()}"></label>
+        </div>
+        <div class="row between"><div class="totalbox" style="flex:1;min-width:220px"><span>Valor total del cliente</span><b class="num" id="cl-total">${fmt(0)}</b></div>
+        <button class="btn primary">Agregar cliente</button></div>
+      </form>
+      <datalist id="dl-personas"></datalist><datalist id="dl-productos"></datalist>
+    </div>
+    <div class="card section">
+      <div class="head"><h3>Clientes y cuentas</h3>
+        <div class="row"><input type="search" id="cl-buscar" placeholder="Buscar cliente o producto" style="width:220px" value="${esc(ui.evBuscar)}">
+        <div class="chips" id="cl-filtro">${[["todos","Todos"],["no","No pagado"],["abono","Abono parcial"],["pagado","Pagado"]].map(([k,l]) => `<button class="chip" data-f="${k}" aria-pressed="${ui.evFiltro===k}">${l}</button>`).join("")}</div></div>
+      </div>
+      <div id="cl-list" class="clients"></div>
+    </div>`;
+}
+function bindEventoDetalle(v) {
+  $("#ev-back", v).onclick = () => { ui.evSel = null; showTab("eventos"); };
+  const f = $("#cl-form", v);
+  const upd = () => {
+    const cant = n0(f.cantidad.value), vu = n0(f.valorUnit.value); $("#cl-total").textContent = fmt(cant * vu);
+    const est = f.estado.value;
+    $$("[data-pg]", f).forEach(l => l.hidden = est === "no" || (est === "pagado" && l.querySelector("#cl-abono")));
+  };
+  f.addEventListener("input", upd); f.addEventListener("change", upd);
+  f.onsubmit = e => {
+    e.preventDefault();
+    const ev = getEv(ui.evSel); if (!ev) return;
+    const d = Object.fromEntries(new FormData(f));
+    if (!d.nombre.trim()) return fieldErr(f, "nombre", "Escribe el nombre del cliente.");
+    if (!d.producto.trim()) return fieldErr(f, "producto", "Describe el producto o servicio.");
+    const cant = n0(d.cantidad), vu = n0(d.valorUnit);
+    if (cant <= 0) return fieldErr(f, "cantidad", "La cantidad debe ser mayor que cero.");
+    if (vu <= 0) return fieldErr(f, "valorUnit", "Escribe el valor por unidad.");
+    const total = cant * vu; const pagos = [];
+    if (d.estado === "pagado") pagos.push({ id: uid(), monto: total, fecha: d.fpago || hoy(), metodo: d.metodo });
+    if (d.estado === "abono") {
+      const a = n0(d.abono);
+      if (a <= 0) return fieldErr(f, "abono", "Escribe el valor del abono.");
+      if (a > total) return fieldErr(f, "abono", "El abono no puede ser mayor que el total.");
+      pagos.push({ id: uid(), monto: a, fecha: d.fpago || hoy(), metodo: d.metodo });
+    }
+    const nev = clone(ev); nev.clientes = nev.clientes || [];
+    nev.clientes.push({ id: uid(), nombre: d.nombre.trim(), telefono: d.telefono.trim(), producto: d.producto.trim(), cantidad: cant, valorUnit: vu, pagos });
+    persist("eventos", ev.id, nev);
+    const keepProd = d.producto, keepVu = d.valorUnit;
+    f.reset(); f.producto.value = keepProd; f.valorUnit.value = keepVu; f.cantidad.value = 1; f.fpago.value = hoy(); fillMetodoSelects(); upd();
+    f.nombre.focus(); toast(`${d.nombre.trim()} agregado`);
+  };
+  upd();
+  $("#cl-buscar", v).oninput = e => { ui.evBuscar = e.target.value; dataEventoDetalle(); };
+  $("#cl-filtro", v).onclick = e => { const b = e.target.closest("[data-f]"); if (!b) return; ui.evFiltro = b.dataset.f; $$("#cl-filtro .chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.f === ui.evFiltro)); dataEventoDetalle(); };
+}
+function dataEventoDetalle() {
+  const ev = getEv(ui.evSel); if (!ev) return;
+  const t = evTot(ev); const cl = ev.clientes || [];
+  const cnt = { pagado: 0, abono: 0, no: 0 }; cl.forEach(c => cnt[cEstado(c)]++);
+  $("#ev-head").innerHTML = `
+    <div class="head"><div class="row" style="align-items:center;gap:14px">${dateBox(ev.fecha)}<div><div class="eyebrow">Evento de venta</div><h2>${esc(ev.nombre)}</h2>
+      <div class="muted small">${fecha(ev.fecha)}${ev.lugar ? " · " + esc(ev.lugar) : ""}</div></div></div>
+      <div class="row"><button class="btn sm" id="ev-edit">Editar</button><button class="btn sm danger" id="ev-del">Eliminar</button></div></div>
+    ${ev.descripcion ? `<p class="muted" style="margin:0;max-width:70ch">${esc(ev.descripcion)}</p>` : ""}
+    <div class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
+      <div class="kpi"><span class="lbl">Valor total del evento</span><span class="val num">${fmt(t.total)}</span><span class="sub">${t.n} cliente${t.n===1?"":"s"}</span></div>
+      <div class="kpi"><span class="lbl">Recaudado</span><span class="val num in">${fmt(t.pagado)}</span><span class="sub">${t.total ? Math.round(t.pagado/t.total*100) : 0}% del total</span></div>
+      <div class="kpi"><span class="lbl">Por cobrar</span><span class="val num due">${fmt(t.pendiente)}</span><span class="sub">${cnt.no} sin pagar · ${cnt.abono} con abono</span></div>
+      <div class="kpi"><span class="lbl">Pagados</span><span class="val num">${cnt.pagado} / ${t.n}</span><div class="progress"><span style="width:${t.n ? cnt.pagado/t.n*100 : 0}%"></span></div></div>
+    </div>`;
+  $("#ev-edit").onclick = () => nuevoEvento(ev);
+  $("#ev-del").onclick = () => confirmar("Eliminar evento", `Se eliminará <b>${esc(ev.nombre)}</b> con sus ${t.n} clientes y ${fmt(t.pagado)} en pagos registrados. Esta acción no se puede deshacer.`, "Eliminar evento", () => { persist("eventos", ev.id, null); ui.evSel = null; showTab("eventos"); toast("Evento eliminado"); });
+
+  // datalists
+  const personas = new Set(), productos = new Set();
+  state.eventos.forEach(e => (e.clientes || []).forEach(c => { personas.add(c.nombre); productos.add(c.producto); }));
+  state.ofrendas.forEach(o => o.persona && personas.add(o.persona));
+  $("#dl-personas").innerHTML = [...personas].map(p => `<option value="${esc(p)}">`).join("");
+  $("#dl-productos").innerHTML = [...productos].map(p => `<option value="${esc(p)}">`).join("");
+
+  const q = ui.evBuscar.trim().toLowerCase();
+  const list = cl.filter(c => (ui.evFiltro === "todos" || cEstado(c) === ui.evFiltro) && (!q || (c.nombre + " " + c.producto).toLowerCase().includes(q)));
+  const box = $("#cl-list");
+  if (!cl.length) { box.innerHTML = `<div class="empty"><b>Sin clientes en este evento</b>Usa el formulario de arriba para agregar a cada persona, lo que pidió y cuánto debe.</div>`; return; }
+  if (!list.length) { box.innerHTML = `<div class="empty">Ningún cliente coincide con el filtro.</div>`; return; }
+  box.innerHTML = list.map(c => {
+    const tot = cTotal(c), pag = cPagado(c), est = cEstado(c), pend = Math.max(0, tot - pag);
+    return `<div class="client" data-c="${c.id}">
+      <div class="who"><b>${esc(c.nombre)}</b>${c.telefono ? `<div class="muted small">${esc(c.telefono)}</div>` : ""}<div style="margin-top:4px"><span class="pill ${est}">${EST_TXT[est]}</span></div></div>
+      <div class="prod"><div>${esc(c.producto)}</div><div class="muted small num">${n0(c.cantidad)} × ${fmt(c.valorUnit)}</div></div>
+      <div class="money num"><div class="t">${fmt(tot)}</div><div class="small ${pend ? "due" : "in"}">${pend ? "Debe " + fmt(pend) : "Al día"}</div>${pag && pend ? `<div class="small muted">Abonó ${fmt(pag)}</div>` : ""}</div>
+      <div class="acts">
+        ${est !== "pagado" ? `<button class="btn sm good" data-a="pagado">Pagado</button><button class="btn sm warn" data-a="abono">Abono</button>` : ""}
+        ${est !== "no" ? `<button class="btn sm" data-a="nopagado">No pagado</button>` : ""}
+        <button class="btn sm ghost" data-a="editar" aria-label="Editar cliente">Editar</button>
+        <button class="btn sm ghost danger" data-a="borrar" aria-label="Quitar cliente">Quitar</button>
+      </div>
+      ${(c.pagos || []).length ? `<div class="pays">${c.pagos.map(p => `<span class="pay num">${fecha(p.fecha)} · <b>${fmt(p.monto)}</b> · ${esc(p.metodo)}<button data-a="delpago" data-p="${p.id}" aria-label="Borrar este pago" title="Borrar este pago">×</button></span>`).join("")}</div>` : ""}
+    </div>`;
+  }).join("");
+  box.querySelectorAll("button[data-a]").forEach(b => b.onclick = () => accionCliente(ev.id, b.closest("[data-c]").dataset.c, b.dataset.a, b.dataset.p));
+}
+function mutarCliente(evId, cId, fn) {
+  const ev = getEv(evId); if (!ev) return;
+  const nev = clone(ev); const c = nev.clientes.find(x => x.id === cId); if (!c) return;
+  if (fn(c, nev) === false) return; persist("eventos", evId, nev);
+}
+function accionCliente(evId, cId, a, pagoId) {
+  const ev = getEv(evId); const c = ev?.clientes.find(x => x.id === cId); if (!c) return;
+  const pend = Math.max(0, cTotal(c) - cPagado(c));
+  if (a === "pagado" || a === "abono") {
+    const total = a === "pagado";
+    modal(total ? `Registrar pago completo · ${c.nombre}` : `Registrar abono · ${c.nombre}`, `
+      <div class="totalbox"><span>Saldo pendiente</span><b class="num">${fmt(pend)}</b></div>
+      <div class="fgrid">
+        <label>Valor recibido<input type="number" name="monto" id="m-monto" min="0" step="50" value="${total ? pend : ""}"></label>
+        <label>Método de pago<select name="metodo" id="m-metodo" data-metodo>${metodoOptions(state.metodos[0])}</select></label>
+        <label>Fecha del pago<input type="date" name="fecha" id="m-fecha" value="${hoy()}"></label>
+      </div>`, total ? "Marcar como pagado" : "Guardar abono", (d, form) => {
+        const m = n0(d.monto);
+        if (m <= 0) return fieldErr(form, "monto", "Escribe el valor recibido.");
+        if (m > pend) return fieldErr(form, "monto", `El valor supera lo pendiente (${fmt(pend)}).`);
+        mutarCliente(evId, cId, cc => { cc.pagos = cc.pagos || []; cc.pagos.push({ id: uid(), monto: m, fecha: d.fecha || hoy(), metodo: d.metodo }); });
+        toast(m >= pend ? `${c.nombre} quedó al día` : `Abono de ${fmt(m)} registrado`);
+      });
+  } else if (a === "nopagado") {
+    confirmar("Marcar como no pagado", `Se borrarán los ${c.pagos.length} pago(s) registrados de <b>${esc(c.nombre)}</b> (${fmt(cPagado(c))}). Úsalo solo si los pagos se anotaron por error.`, "Marcar no pagado", () => { mutarCliente(evId, cId, cc => { cc.pagos = []; }); toast("Marcado como no pagado"); });
+  } else if (a === "delpago") {
+    const p = c.pagos.find(x => x.id === pagoId);
+    confirmar("Borrar pago", `¿Borrar el pago de ${fmt(p?.monto)} del ${fecha(p?.fecha)} (${esc(p?.metodo)})?`, "Borrar pago", () => mutarCliente(evId, cId, cc => { cc.pagos = cc.pagos.filter(x => x.id !== pagoId); }));
+  } else if (a === "borrar") {
+    confirmar("Quitar cliente", `Se quitará a <b>${esc(c.nombre)}</b> de este evento junto con sus pagos (${fmt(cPagado(c))}).`, "Quitar cliente", () => { mutarCliente(evId, cId, (cc, nev) => { nev.clientes = nev.clientes.filter(x => x.id !== cId); }); toast("Cliente quitado"); });
+  } else if (a === "editar") {
+    modal(`Editar cliente`, `<div class="fgrid">
+      <label>Cliente<input name="nombre" id="m-c-nombre" value="${esc(c.nombre)}"></label>
+      <label>Teléfono<input name="telefono" id="m-c-tel" value="${esc(c.telefono)}"></label>
+      <label class="wide">Producto o servicio<input name="producto" id="m-c-prod" value="${esc(c.producto)}"></label>
+      <label>Cantidad<input type="number" name="cantidad" id="m-c-cant" min="0" step="1" value="${n0(c.cantidad)}"></label>
+      <label>Valor por unidad<input type="number" name="valorUnit" id="m-c-vu" min="0" step="50" value="${n0(c.valorUnit)}"></label></div>`, "Guardar cambios", (d, form) => {
+        if (!d.nombre.trim()) return fieldErr(form, "nombre", "Escribe el nombre del cliente.");
+        if (n0(d.cantidad) <= 0) return fieldErr(form, "cantidad", "La cantidad debe ser mayor que cero.");
+        mutarCliente(evId, cId, cc => Object.assign(cc, { nombre: d.nombre.trim(), telefono: d.telefono.trim(), producto: d.producto.trim(), cantidad: n0(d.cantidad), valorUnit: n0(d.valorUnit) }));
+        toast("Cliente actualizado");
+      });
+  }
+}
+
+/* ---------- CALENDARIO ---------- */
+function itemsPorDia() {
+  const map = {};
+  const add = (f, it) => { if (!f) return; (map[f] ??= []).push(it); };
+  for (const e of state.eventos) {
+    add(e.fecha, { k: "ev", txt: e.nombre, ev: e.id });
+    for (const c of e.clientes || []) for (const p of c.pagos || []) add(p.fecha, { k: "pg", txt: `${c.nombre} · ${e.nombre}`, monto: n0(p.monto), metodo: p.metodo, ev: e.id });
+  }
+  for (const o of state.ofrendas) add(o.fecha, { k: "of", txt: `${o.tipo} · ${o.persona || "Anónimo"}`, monto: n0(o.monto), metodo: o.metodo });
+  for (const g of state.gastos) add(g.fecha, { k: "ga", txt: g.concepto, monto: n0(g.monto), metodo: g.metodo });
+  return map;
+}
+views.calendario = {
+  shell: () => `<div class="head"><div><div class="eyebrow">Agenda</div><div class="calhead"><button class="btn sm" id="cal-prev" aria-label="Mes anterior">‹</button><h2 id="cal-t"></h2><button class="btn sm" id="cal-next" aria-label="Mes siguiente">›</button><button class="btn sm ghost" id="cal-hoy">Hoy</button></div></div>
+    <div class="legend"><span><i style="background:var(--navy-solid)"></i>Día de evento</span><span><i style="background:var(--good)"></i>Pago recibido</span><span><i style="background:var(--sky)"></i>Ofrenda</span><span><i style="background:var(--red)"></i>Gasto</span></div></div>
+    <div class="card"><div class="cal" id="cal"></div></div>
+    <div class="card section"><h3 id="cal-dia-t"></h3><div id="cal-dia" class="dayitems"></div></div>`,
+  bind: v => {
+    const mv = d => { ui.calM += d; if (ui.calM < 0) { ui.calM = 11; ui.calY--; } if (ui.calM > 11) { ui.calM = 0; ui.calY++; } refresh(); };
+    $("#cal-prev", v).onclick = () => mv(-1); $("#cal-next", v).onclick = () => mv(1);
+    $("#cal-hoy", v).onclick = () => { const d = new Date(); ui.calY = d.getFullYear(); ui.calM = d.getMonth(); ui.calDia = hoy(); refresh(); };
+    $("#cal", v).onclick = e => { const b = e.target.closest("[data-d]"); if (!b) return; ui.calDia = b.dataset.d; refresh(); };
+  },
+  data: () => {
+    const cal = $("#cal"); if (!cal) return;
+    $("#cal-t").textContent = `${MESES_L[ui.calM]} ${ui.calY}`;
+    const map = itemsPorDia(); const h = hoy();
+    const first = new Date(ui.calY, ui.calM, 1); const offset = (first.getDay() + 6) % 7;
+    const start = new Date(ui.calY, ui.calM, 1 - offset);
+    let html = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].map(d => `<div class="dow">${d}</div>`).join("");
+    for (let i = 0; i < 42; i++) {
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      if (i >= 35 && d.getMonth() !== ui.calM) break;
+      const k = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+      const its = map[k] || [];
+      const evs = its.filter(x => x.k === "ev"), pg = sum(its.filter(x => x.k === "pg"), x => x.monto), of = sum(its.filter(x => x.k === "of"), x => x.monto), ga = sum(its.filter(x => x.k === "ga"), x => x.monto);
+      const cls = ["day", d.getMonth() !== ui.calM ? "out-m" : "", k === h ? "today" : "", evs.length ? "has-ev" : "", k === ui.calDia ? "sel" : ""].join(" ");
+      const tags = evs.map(e => `<span class="tag ev" title="${esc(e.txt)}">★ ${esc(e.txt)}</span>`).join("")
+        + (pg ? `<span class="tag pg num">+${fmt(pg)}</span>` : "") + (of ? `<span class="tag of num">+${fmt(of)}</span>` : "") + (ga ? `<span class="tag ga num">−${fmt(ga)}</span>` : "");
+      const dots = (evs.length ? `<i style="background:var(--navy-solid)"></i>` : "") + (pg ? `<i style="background:var(--good)"></i>` : "") + (of ? `<i style="background:var(--sky)"></i>` : "") + (ga ? `<i style="background:var(--red)"></i>` : "");
+      html += `<button class="${cls}" data-d="${k}" aria-label="${d.getDate()} de ${MESES_L[d.getMonth()]}${its.length ? ", " + its.length + " movimientos" : ""}"><span class="dn">${d.getDate()}</span>${tags}<span class="dots">${dots}</span></button>`;
+    }
+    cal.innerHTML = html;
+    const its = map[ui.calDia] || [];
+    $("#cal-dia-t").textContent = `Detalle del ${fecha(ui.calDia)}`;
+    const lbl = { ev: ["ev", "Evento"], pg: ["pg", "Pago recibido"], of: ["of", "Ofrenda"], ga: ["ga", "Gasto"] };
+    $("#cal-dia").innerHTML = its.length ? its.map(it => `<div class="dayitem"><div class="row" style="min-width:0"><span class="tag ${lbl[it.k][0]}">${lbl[it.k][1]}</span><span style="overflow-wrap:anywhere">${esc(it.txt)}</span>${it.metodo ? `<span class="muted small">· ${esc(it.metodo)}</span>` : ""}</div>
+      <div class="row">${it.monto != null ? `<b class="num ${it.k === "ga" ? "out" : "in"}">${it.k === "ga" ? "−" : "+"}${fmt(it.monto)}</b>` : ""}${it.ev ? `<button class="btn sm" data-ev="${it.ev}">Abrir evento</button>` : ""}</div></div>`).join("")
+      : `<div class="empty">Nada registrado este día.</div>`;
+    $$("#cal-dia [data-ev]").forEach(b => b.onclick = () => { ui.evSel = b.dataset.ev; showTab("eventos"); window.scrollTo(0, 0); });
+  }
+};
+
+/* ---------- OFRENDAS y GASTOS (formulario + lista) ---------- */
+function registroView(cfg) {
+  return {
+    shell: () => { ui[cfg.editKey] = null; return `<div class="head"><div><div class="eyebrow">${cfg.eyebrow}</div><h2>${cfg.titulo}</h2></div></div>
+      <div class="grid2" style="grid-template-columns:1fr 1fr">
+        <div class="card section"><h3 id="${cfg.p}-ftitle">${cfg.nuevo}</h3>
+          <form id="${cfg.p}-form" class="section" novalidate><div class="fgrid">${cfg.campos()}</div>
+          <div class="row"><button class="btn primary" id="${cfg.p}-save">${cfg.btn}</button><button type="button" class="btn" id="${cfg.p}-cancel" hidden>Cancelar edición</button></div></form>
+        </div>
+        <div class="card section" id="${cfg.p}-resumen"></div>
+      </div>
+      <div class="card section"><div class="head"><h3>${cfg.lista}</h3><div class="row"><input type="search" id="${cfg.p}-buscar" placeholder="Buscar" style="width:200px"><select id="${cfg.p}-mes" style="width:auto"></select></div></div><div id="${cfg.p}-list"></div></div>`; },
+    bind: v => {
+      const f = $(`#${cfg.p}-form`, v);
+      f.onsubmit = e => {
+        e.preventDefault(); const d = Object.fromEntries(new FormData(f));
+        const err = cfg.validar(d); if (err) return fieldErr(f, err[0], err[1]);
+        const id = ui[cfg.editKey] || uid();
+        persist(cfg.col, id, cfg.armar(d));
+        toast(ui[cfg.editKey] ? "Cambios guardados" : cfg.ok);
+        salirEdicion();
+      };
+      const salirEdicion = () => { ui[cfg.editKey] = null; f.reset(); f.fecha.value = hoy(); fillMetodoSelects(); $(`#${cfg.p}-ftitle`).textContent = cfg.nuevo; $(`#${cfg.p}-save`).textContent = cfg.btn; $(`#${cfg.p}-cancel`).hidden = true; };
+      $(`#${cfg.p}-cancel`, v).onclick = salirEdicion;
+      cfg.salir = salirEdicion;
+      $(`#${cfg.p}-buscar`, v).oninput = () => refresh();
+      $(`#${cfg.p}-mes`, v).onchange = () => refresh();
+    },
+    data: () => {
+      const list = $(`#${cfg.p}-list`); if (!list) return;
+      const all = [...state[cfg.col]].sort((a, b) => (b.fecha || "").localeCompare(a.fecha || ""));
+      const mesSel = $(`#${cfg.p}-mes`); const prev = mesSel.value;
+      const meses = [...new Set(all.map(x => (x.fecha || "").slice(0, 7)).filter(Boolean))];
+      mesSel.innerHTML = `<option value="">Todos los meses</option>` + meses.map(m => `<option value="${m}" ${m === prev ? "selected" : ""}>${MESES_L[+m.slice(5)-1]} ${m.slice(0,4)}</option>`).join("");
+      const q = $(`#${cfg.p}-buscar`).value.trim().toLowerCase(); const mes = mesSel.value;
+      const rows = all.filter(x => (!mes || (x.fecha || "").startsWith(mes)) && (!q || cfg.texto(x).toLowerCase().includes(q)));
+      // resumen
+      const total = sum(rows, x => x.monto);
+      const porCat = {}; rows.forEach(x => { const k = x[cfg.catField] || "Otro"; porCat[k] = (porCat[k] || 0) + n0(x.monto); });
+      const cats = Object.entries(porCat).sort((a, b) => b[1] - a[1]); const max = Math.max(...cats.map(c => c[1]), 1);
+      $(`#${cfg.p}-resumen`).innerHTML = `<div><div class="muted small">${mes ? "Total de " + MESES_L[+mes.slice(5)-1] + " " + mes.slice(0,4) : "Total registrado"}${q ? " (filtrado)" : ""}</div>
+        <div class="num" style="font-family:var(--f-display);font-size:2.2rem;font-weight:700;color:var(--${cfg.color})">${fmt(total)}</div><div class="muted small">${rows.length} registro${rows.length===1?"":"s"}</div></div>
+        <h3>Por ${cfg.catLabel}</h3>
+        ${cats.length ? cats.map(([k, v]) => `<div class="section" style="gap:4px"><div class="kv num"><span>${esc(k)}</span><b>${fmt(v)}</b></div><div class="progress"><span style="width:${v/max*100}%;background:var(--${cfg.color})"></span></div></div>`).join("") : `<p class="muted small" style="margin:0">Sin datos aún.</p>`}`;
+      if (!state.loaded) { list.innerHTML = `<div class="empty">Cargando…</div>`; return; }
+      if (!all.length) { list.innerHTML = `<div class="empty"><b>${cfg.vacio[0]}</b>${cfg.vacio[1]}</div>`; return; }
+      if (!rows.length) { list.innerHTML = `<div class="empty">Ningún registro coincide con el filtro.</div>`; return; }
+      list.innerHTML = `<div class="tbl-wrap"><table><thead><tr>${cfg.cols.map(c => `<th class="${c[1]||""}">${c[0]}</th>`).join("")}<th></th></tr></thead><tbody>
+        ${rows.map(x => `<tr data-id="${x.id}">${cfg.fila(x)}<td class="r" style="white-space:nowrap"><button class="btn sm ghost" data-a="ed">Editar</button><button class="btn sm ghost danger" data-a="del">Borrar</button></td></tr>`).join("")}
+        </tbody></table></div>`;
+      list.querySelectorAll("button[data-a]").forEach(b => b.onclick = () => {
+        const id = b.closest("tr").dataset.id; const x = state[cfg.col].find(r => r.id === id); if (!x) return;
+        if (b.dataset.a === "del") return confirmar("Borrar registro", `¿Borrar ${esc(cfg.texto(x))} por ${fmt(x.monto)}?`, "Borrar", () => { persist(cfg.col, id, null); if (ui[cfg.editKey] === id) cfg.salir?.(); toast("Registro borrado"); });
+        ui[cfg.editKey] = id; const f = $(`#${cfg.p}-form`);
+        for (const [k, v] of Object.entries(x)) { const el = f.elements[k]; if (!el) continue; if (el.tagName === "SELECT" && ![...el.options].some(o => o.value === v)) el.insertAdjacentHTML("beforeend", `<option>${esc(v)}</option>`); el.value = v ?? ""; }
+        $(`#${cfg.p}-ftitle`).textContent = "Editar registro"; $(`#${cfg.p}-save`).textContent = "Guardar cambios"; $(`#${cfg.p}-cancel`).hidden = false;
+        f.scrollIntoView({ behavior: "smooth", block: "center" }); f.elements[0].focus({ preventScroll: true });
+      });
+    }
+  };
+}
+views.ofrendas = registroView({
+  p: "of", col: "ofrendas", editKey: "editOf", eyebrow: "Iglesia", titulo: "Ofrendas", nuevo: "Registrar ofrenda", btn: "Guardar ofrenda", lista: "Ofrendas recibidas", ok: "Ofrenda registrada", color: "sky",
+  catField: "tipo", catLabel: "tipo",
+  vacio: ["Aún no hay ofrendas registradas", "Anota cada ofrenda, diezmo o primicia con quién la dio y por qué medio llegó."],
+  campos: () => `
+    <label>Fecha<input type="date" name="fecha" id="of-fecha" value="${hoy()}"></label>
+    <label>Quién la dio<input name="persona" id="of-persona" placeholder="Nombre (o déjalo vacío si es anónima)" list="of-dl" autocomplete="off"><datalist id="of-dl">${[...new Set(state.ofrendas.map(o => o.persona).filter(Boolean))].map(p => `<option value="${esc(p)}">`).join("")}</datalist></label>
+    <label>Tipo<select name="tipo" id="of-tipo">${TIPOS_OFRENDA.map(t => `<option>${t}</option>`).join("")}</select></label>
+    <label>Valor (COP)<input type="number" name="monto" id="of-monto" min="0" step="50"></label>
+    <label>Método de pago<select name="metodo" id="of-metodo" data-metodo>${metodoOptions(state.metodos[0])}</select></label>
+    <label class="wide">Nota<input name="nota" id="of-nota" placeholder="Culto dominical, campaña, etc."></label>`,
+  validar: d => n0(d.monto) <= 0 ? ["monto", "Escribe el valor de la ofrenda."] : null,
+  armar: d => ({ fecha: d.fecha || hoy(), persona: d.persona.trim(), tipo: d.tipo, monto: n0(d.monto), metodo: d.metodo, nota: d.nota.trim() }),
+  texto: x => `${x.tipo} ${x.persona || "Anónimo"} ${x.nota || ""}`,
+  cols: [["Fecha"], ["Persona"], ["Tipo"], ["Método"], ["Valor", "r"]],
+  fila: x => `<td class="num" style="white-space:nowrap">${fecha(x.fecha)}</td><td>${esc(x.persona || "Anónimo")}${x.nota ? `<div class="muted small">${esc(x.nota)}</div>` : ""}</td><td><span class="tag of">${esc(x.tipo)}</span></td><td class="muted">${esc(x.metodo)}</td><td class="r num in" style="white-space:nowrap"><b>${fmt(x.monto)}</b></td>`
+});
+views.gastos = registroView({
+  p: "ga", col: "gastos", editKey: "editGa", eyebrow: "Egresos", titulo: "Gastos", nuevo: "Registrar gasto", btn: "Guardar gasto", lista: "En qué se ha invertido el dinero", ok: "Gasto registrado", color: "red",
+  catField: "categoria", catLabel: "categoría",
+  vacio: ["Aún no hay gastos registrados", "Anota cada compra o pago que haga la iglesia para que el saldo quede exacto."],
+  campos: () => `
+    <label>Fecha<input type="date" name="fecha" id="ga-fecha" value="${hoy()}"></label>
+    <label>Concepto<input name="concepto" id="ga-concepto" placeholder="Ej: Harina y aceite para la venta"></label>
+    <label>Categoría<select name="categoria" id="ga-cat">${CATS_GASTO.map(t => `<option>${t}</option>`).join("")}</select></label>
+    <label>Valor (COP)<input type="number" name="monto" id="ga-monto" min="0" step="50"></label>
+    <label>Pagado con<select name="metodo" id="ga-metodo" data-metodo>${metodoOptions(state.metodos[0])}</select></label>
+    <label class="wide">Nota<input name="nota" id="ga-nota" placeholder="Proveedor, factura, responsable…"></label>`,
+  validar: d => !d.concepto.trim() ? ["concepto", "Escribe en qué se gastó."] : n0(d.monto) <= 0 ? ["monto", "Escribe el valor del gasto."] : null,
+  armar: d => ({ fecha: d.fecha || hoy(), concepto: d.concepto.trim(), categoria: d.categoria, monto: n0(d.monto), metodo: d.metodo, nota: d.nota.trim() }),
+  texto: x => `${x.concepto} ${x.categoria} ${x.nota || ""}`,
+  cols: [["Fecha"], ["Concepto"], ["Categoría"], ["Método"], ["Valor", "r"]],
+  fila: x => `<td class="num" style="white-space:nowrap">${fecha(x.fecha)}</td><td>${esc(x.concepto)}${x.nota ? `<div class="muted small">${esc(x.nota)}</div>` : ""}</td><td><span class="tag ga">${esc(x.categoria)}</span></td><td class="muted">${esc(x.metodo)}</td><td class="r num out" style="white-space:nowrap"><b>${fmt(x.monto)}</b></td>`
+});
+
+/* ---------- MÉTODOS DE PAGO ---------- */
+views.ajustes = {
+  shell: () => `<div class="head"><div><div class="eyebrow">Configuración</div><h2>Métodos de pago</h2></div></div>
+    <div class="card section" style="max-width:640px">
+      <p class="muted" style="margin:0">Estos métodos aparecen al registrar pagos, ofrendas y gastos. Quitar un método no borra los registros que ya lo usan.</p>
+      <div id="met-list" class="section" style="gap:8px"></div>
+      <form id="met-form" class="row" novalidate><input name="nuevo" id="met-nuevo" placeholder="Ej: Daviplata, Bancolombia, Transferencia" style="flex:1;min-width:180px"><button class="btn primary">Agregar método</button></form>
+    </div>
+    <div class="head"><div><div class="eyebrow">Respaldo</div><h2>Copia de seguridad</h2></div></div>
+    <div class="card section" style="max-width:640px">
+      <p class="muted" style="margin:0">Los datos se guardan en este navegador. Descarga una copia con frecuencia y úsala para pasar la información a otro computador o celular.</p>
+      <div class="row"><button class="btn primary" id="bk-exp">Descargar copia (.json)</button>
+      <label class="btn" style="flex-direction:row;color:var(--ink);font-size:.95rem">Restaurar copia<input type="file" id="bk-imp" accept="application/json,.json" hidden></label></div>
+    </div>`,
+  bind: v => {
+    $("#met-form", v).onsubmit = e => {
+      e.preventDefault(); const val = e.target.nuevo.value.trim();
+      if (!val) return fieldErr(e.target, "nuevo", "Escribe el nombre del método.");
+      if (state.metodos.some(m => m.toLowerCase() === val.toLowerCase())) return fieldErr(e.target, "nuevo", "Ese método ya existe.");
+      saveMetodos([...state.metodos, val]); e.target.reset(); toast(`${val} agregado`);
+    };
+    $("#bk-exp", v).onclick = () => {
+      const data = JSON.stringify({ app: "finanzas-vida-nueva", version: 1, exportado: new Date().toISOString(), eventos: state.eventos, ofrendas: state.ofrendas, gastos: state.gastos, metodos: state.metodos }, null, 2);
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([data], { type: "application/json" }));
+      a.download = `finanzas-vida-nueva-${hoy()}.json`; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast("Copia descargada");
+    };
+    $("#bk-imp", v).onchange = e => {
+      const file = e.target.files[0]; e.target.value = ""; if (!file) return;
+      const r = new FileReader();
+      r.onload = () => {
+        let d; try { d = JSON.parse(r.result); } catch { return toast("El archivo no es una copia válida."); }
+        if (!Array.isArray(d.eventos) || !Array.isArray(d.ofrendas) || !Array.isArray(d.gastos)) return toast("El archivo no es una copia de Finanzas Vida Nueva.");
+        confirmar("Restaurar copia", `Se reemplazarán los datos actuales por los de la copia (${d.eventos.length} eventos, ${d.ofrendas.length} ofrendas, ${d.gastos.length} gastos).`, "Restaurar", () => {
+          state.eventos = d.eventos; state.ofrendas = d.ofrendas; state.gastos = d.gastos;
+          state.metodos = Array.isArray(d.metodos) && d.metodos.length ? d.metodos : [...DEFAULT_METODOS];
+          saveLocal(); fillMetodoSelects(); refresh(); toast("Copia restaurada");
+        });
+      };
+      r.readAsText(file);
+    };
+  },
+  data: () => {
+    const box = $("#met-list"); if (!box) return;
+    const uso = {}; movimientos().forEach(m => uso[m.metodo] = (uso[m.metodo] || 0) + 1);
+    box.innerHTML = state.metodos.map((m, i) => `<div class="dayitem"><div><b>${esc(m)}</b><div class="muted small">${uso[m] || 0} movimiento${uso[m]===1?"":"s"}</div></div>
+      <div class="row"><button class="btn sm ghost" data-up="${i}" ${i ? "" : "disabled"} aria-label="Subir">↑</button><button class="btn sm ghost danger" data-del="${i}" ${state.metodos.length > 1 ? "" : "disabled"}>Quitar</button></div></div>`).join("");
+    box.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { const m = state.metodos[+b.dataset.del]; confirmar("Quitar método", `¿Quitar <b>${esc(m)}</b> de la lista? Los registros existentes lo conservan.`, "Quitar", () => saveMetodos(state.metodos.filter(x => x !== m))); });
+    box.querySelectorAll("[data-up]").forEach(b => b.onclick = () => { const i = +b.dataset.up; const l = [...state.metodos]; [l[i-1], l[i]] = [l[i], l[i-1]]; saveMetodos(l); });
+  }
+};
+
+/* ---------- Arranque ---------- */
+function setMode(cls, txt) { const m = $("#mode"); m.className = "mode " + cls; m.querySelector("span").textContent = txt; }
+function boot() {
+  const initial = (location.hash || "").slice(1);
+  loadLocal(); state.loaded = true; state.mode = "local";
+  setMode("local", "Guardado en este navegador");
+  showTab(views[initial] ? initial : "panel");
+}
+boot();
+})();
+</script>
+</body>
+</html>
