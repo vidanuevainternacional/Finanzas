@@ -219,6 +219,7 @@ tr:last-child td{border-bottom:0}
 <div id="modal-root"></div>
 <div id="toast" class="toast" hidden></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
 <script>
 (() => {
 const DEFAULT_METODOS = ["Nequi", "Banco Caja Social", "Efectivo"];
@@ -271,15 +272,26 @@ function enPeriodo(f) {
 }
 
 /* ---------- Almacenamiento ---------- */
-let db = null;
+/* ===== CONFIGURACIÓN DE SUPABASE =====
+   Pega aquí la "Publishable key" (o "anon public key") de tu proyecto:
+   Supabase → Project Settings → API Keys.
+   Esta clave es pública; la seguridad la dan el inicio de sesión y las reglas RLS. */
+const SUPABASE_URL = "https://zovmxsaoxtoqlvlkaqdt.supabase.co";
+const SUPABASE_KEY = "sb_publishable_bQkrNkJrk2SI3kkrlAZnkQ_82u4MY5s";
+const TABLA = "registros";
+
+let sb = null;          // cliente de Supabase cuando hay sesión iniciada
+let sbClient = null;
 const queues = {};
 function saveLocal() { try { localStorage.setItem(LS, JSON.stringify({ eventos: state.eventos, ofrendas: state.ofrendas, gastos: state.gastos, metodos: state.metodos })); } catch {} }
+function readLocal() { try { return JSON.parse(localStorage.getItem(LS) || "null"); } catch { return null; } }
 function loadLocal() {
-  try { const d = JSON.parse(localStorage.getItem(LS) || "null"); if (d) { state.eventos = d.eventos || []; state.ofrendas = d.ofrendas || []; state.gastos = d.gastos || []; state.metodos = d.metodos?.length ? d.metodos : [...DEFAULT_METODOS]; } } catch {}
+  const d = readLocal(); if (d) { state.eventos = d.eventos || []; state.ofrendas = d.ofrendas || []; state.gastos = d.gastos || []; state.metodos = d.metodos?.length ? d.metodos : [...DEFAULT_METODOS]; }
 }
 function enqueue(path, fn) {
-  queues[path] = (queues[path] || Promise.resolve()).then(fn).catch(e => {
-    toast(e?.code === "invalid_argument" ? "No tienes permiso para guardar cambios aquí." : "No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.");
+  queues[path] = (queues[path] || Promise.resolve()).then(async () => { const r = await fn(); if (r && r.error) throw r.error; }).catch(e => {
+    console.error(e);
+    toast("No se pudo guardar en la nube. Revisa tu conexión e inténtalo de nuevo.");
   });
 }
 function persist(col, id, data) {
@@ -287,15 +299,51 @@ function persist(col, id, data) {
   if (data === null) { if (i >= 0) arr.splice(i, 1); }
   else { const rec = { ...data, id }; if (i >= 0) arr[i] = rec; else arr.push(rec); }
   refresh();
-  if (!db) { saveLocal(); return; }
-  const ref = db.collection(col).doc(id);
+  if (!sb) { saveLocal(); return; }
   const body = data === null ? null : (() => { const b = { ...data }; delete b.id; return b; })();
-  enqueue(col + "/" + id, () => body === null ? ref.delete() : ref.set(body));
+  enqueue(col + "/" + id, () => body === null
+    ? sb.from(TABLA).delete().eq("coleccion", col).eq("id", id)
+    : sb.from(TABLA).upsert({ coleccion: col, id, datos: body, actualizado: new Date().toISOString() }));
 }
 function saveMetodos(list) {
   state.metodos = list; refresh(); fillMetodoSelects();
-  if (!db) { saveLocal(); return; }
-  enqueue("config/general", () => db.doc("config/general").set({ metodos: list }));
+  if (!sb) { saveLocal(); return; }
+  enqueue("config/general", () => sb.from(TABLA).upsert({ coleccion: "config", id: "general", datos: { metodos: list }, actualizado: new Date().toISOString() }));
+}
+function aplicarFila(row) {
+  if (!row) return;
+  if (row.coleccion === "config") { if (row.id === "general" && Array.isArray(row.datos?.metodos) && row.datos.metodos.length) state.metodos = [...row.datos.metodos]; return; }
+  const arr = state[row.coleccion]; if (!Array.isArray(arr)) return;
+  const rec = { ...(row.datos || {}), id: row.id }; const i = arr.findIndex(x => x.id === row.id);
+  if (i >= 0) arr[i] = rec; else arr.push(rec);
+}
+function quitarFila(row) { const arr = state[row?.coleccion]; if (!Array.isArray(arr)) return; const i = arr.findIndex(x => x.id === row.id); if (i >= 0) arr.splice(i, 1); }
+async function cargarNube() {
+  state.eventos = []; state.ofrendas = []; state.gastos = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await sb.from(TABLA).select("coleccion,id,datos").range(from, from + 999);
+    if (error) throw error;
+    data.forEach(aplicarFila);
+    if (data.length < 1000) break;
+  }
+  state.loaded = true; fillMetodoSelects(); refresh();
+}
+function suscribir() {
+  sb.channel("registros-cambios")
+    .on("postgres_changes", { event: "*", schema: "public", table: TABLA }, p => {
+      if (p.eventType === "DELETE") quitarFila(p.old); else aplicarFila(p.new);
+      if ((p.new || p.old)?.coleccion === "config") fillMetodoSelects();
+      refresh();
+    }).subscribe();
+}
+function filasDe(d) {
+  const rows = [];
+  for (const col of ["eventos", "ofrendas", "gastos"]) for (const x of d[col] || []) { const b = { ...x }; delete b.id; rows.push({ coleccion: col, id: String(x.id), datos: b, actualizado: new Date().toISOString() }); }
+  rows.push({ coleccion: "config", id: "general", datos: { metodos: d.metodos?.length ? d.metodos : state.metodos }, actualizado: new Date().toISOString() });
+  return rows;
+}
+async function subirFilas(rows) {
+  for (let i = 0; i < rows.length; i += 400) { const { error } = await sb.from(TABLA).upsert(rows.slice(i, i + 400)); if (error) throw error; }
 }
 
 /* ---------- UI helpers ---------- */
@@ -804,6 +852,13 @@ views.ajustes = {
       <p class="muted" style="margin:0">Los datos se guardan en este navegador. Descarga una copia con frecuencia y úsala para pasar la información a otro computador o celular.</p>
       <div class="row"><button class="btn primary" id="bk-exp">Descargar copia (.json)</button>
       <label class="btn" style="flex-direction:row;color:var(--ink);font-size:.95rem">Restaurar copia<input type="file" id="bk-imp" accept="application/json,.json" hidden></label></div>
+    </div>
+    <div id="cuenta" class="section" hidden>
+      <div class="head"><div><div class="eyebrow">Cuenta</div><h2>Nube</h2></div></div>
+      <div class="card section" style="max-width:640px">
+        <p class="muted" style="margin:0" id="cuenta-txt"></p>
+        <div class="row"><button class="btn" id="up-local" hidden>Subir datos de este navegador a la nube</button><button class="btn danger" id="logout">Cerrar sesión</button></div>
+      </div>
     </div>`,
   bind: v => {
     $("#met-form", v).onsubmit = e => {
@@ -812,6 +867,19 @@ views.ajustes = {
       if (state.metodos.some(m => m.toLowerCase() === val.toLowerCase())) return fieldErr(e.target, "nuevo", "Ese método ya existe.");
       saveMetodos([...state.metodos, val]); e.target.reset(); toast(`${val} agregado`);
     };
+    if (sb) {
+      $("#cuenta", v).hidden = false;
+      sb.auth.getUser().then(({ data }) => { const t = $("#cuenta-txt"); if (t) t.textContent = `Sesión iniciada como ${data?.user?.email || ""}. Todo lo que registres se guarda en la nube y lo ven los demás usuarios de la iglesia.`; });
+      const loc = readLocal(); const nLoc = loc ? (loc.eventos?.length || 0) + (loc.ofrendas?.length || 0) + (loc.gastos?.length || 0) : 0;
+      const up = $("#up-local", v);
+      if (nLoc) { up.hidden = false; up.textContent = `Subir ${nLoc} registro${nLoc === 1 ? "" : "s"} de este navegador a la nube`; }
+      up.onclick = () => confirmar("Subir datos locales", `Se subirán a la nube los ${nLoc} registros guardados antes en este navegador. Los que ya existan con el mismo identificador se actualizarán.`, "Subir", () => {
+        toast("Subiendo…");
+        subirFilas(filasDe(loc)).then(() => { try { localStorage.removeItem(LS); } catch {} up.hidden = true; return cargarNube(); }).then(() => toast("Datos subidos a la nube"))
+          .catch(err => { console.error(err); toast("No se pudieron subir los datos. Inténtalo de nuevo."); });
+      });
+      $("#logout", v).onclick = () => sb.auth.signOut().then(() => location.reload());
+    }
     $("#bk-exp", v).onclick = () => {
       const data = JSON.stringify({ app: "finanzas-vida-nueva", version: 1, exportado: new Date().toISOString(), eventos: state.eventos, ofrendas: state.ofrendas, gastos: state.gastos, metodos: state.metodos }, null, 2);
       const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([data], { type: "application/json" }));
@@ -827,7 +895,13 @@ views.ajustes = {
         confirmar("Restaurar copia", `Se reemplazarán los datos actuales por los de la copia (${d.eventos.length} eventos, ${d.ofrendas.length} ofrendas, ${d.gastos.length} gastos).`, "Restaurar", () => {
           state.eventos = d.eventos; state.ofrendas = d.ofrendas; state.gastos = d.gastos;
           state.metodos = Array.isArray(d.metodos) && d.metodos.length ? d.metodos : [...DEFAULT_METODOS];
-          saveLocal(); fillMetodoSelects(); refresh(); toast("Copia restaurada");
+          fillMetodoSelects(); refresh();
+          if (!sb) { saveLocal(); toast("Copia restaurada"); return; }
+          toast("Restaurando en la nube…");
+          (async () => {
+            const { error } = await sb.from(TABLA).delete().in("coleccion", ["eventos", "ofrendas", "gastos"]); if (error) throw error;
+            await subirFilas(filasDe(d)); await cargarNube(); toast("Copia restaurada en la nube");
+          })().catch(err => { console.error(err); toast("No se pudo restaurar en la nube. Inténtalo de nuevo."); });
         });
       };
       r.readAsText(file);
@@ -845,11 +919,46 @@ views.ajustes = {
 
 /* ---------- Arranque ---------- */
 function setMode(cls, txt) { const m = $("#mode"); m.className = "mode " + cls; m.querySelector("span").textContent = txt; }
-function boot() {
+function pantallaLogin() {
+  const logo = $(".plate img").src;
+  $("#modal-root").innerHTML = `<div class="overlay" style="background:var(--bg)"><form class="modal" id="login-form" novalidate style="width:min(400px,100%)">
+    <div class="plate" style="align-self:center"><img src="${logo}" alt="Vida Nueva Internacional" style="height:56px"></div>
+    <h3 style="text-align:center">Ingresar a Finanzas</h3>
+    <p class="muted small" style="margin:0;text-align:center">Usa el correo y la contraseña que te dio el administrador.</p>
+    <label>Correo<input type="email" name="email" id="lg-email" autocomplete="username" required></label>
+    <label>Contraseña<input type="password" name="password" id="lg-pass" autocomplete="current-password" required></label>
+    <p id="lg-err" class="small out" style="margin:0" hidden></p>
+    <button class="btn primary" id="lg-btn" style="justify-content:center">Ingresar</button></form></div>`;
+  setTimeout(() => $("#lg-email")?.focus(), 30);
+  $("#login-form").onsubmit = async e => {
+    e.preventDefault();
+    const f = e.target, err = $("#lg-err"), btn = $("#lg-btn");
+    err.hidden = true; btn.disabled = true; btn.textContent = "Ingresando…";
+    const { data, error } = await sbClient.auth.signInWithPassword({ email: f.email.value.trim(), password: f.password.value });
+    btn.disabled = false; btn.textContent = "Ingresar";
+    if (error) { err.textContent = /invalid/i.test(error.message) ? "Correo o contraseña incorrectos." : "No se pudo ingresar: " + error.message; err.hidden = false; return; }
+    iniciarNube(data.session);
+  };
+}
+async function iniciarNube(session) {
+  sb = sbClient; state.mode = "nube"; $("#modal-root").innerHTML = "";
+  setMode("ok", "En la nube · " + (session?.user?.email || ""));
+  try { await cargarNube(); suscribir(); if (ui.tab === "ajustes") showTab("ajustes"); }
+  catch (e) { console.error(e); setMode("local", "Error de conexión"); toast("No se pudieron cargar los datos. ¿Ya creaste la tabla en Supabase?"); }
+}
+async function boot() {
   const initial = (location.hash || "").slice(1);
-  loadLocal(); state.loaded = true; state.mode = "local";
-  setMode("local", "Guardado en este navegador");
   showTab(views[initial] ? initial : "panel");
+  const configurado = SUPABASE_KEY && !SUPABASE_KEY.startsWith("PEGA_AQUI") && window.supabase?.createClient;
+  if (!configurado) {
+    loadLocal(); state.loaded = true; state.mode = "local";
+    setMode("local", "Guardado en este navegador"); refresh(); return;
+  }
+  setMode("", "Conectando…");
+  sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const { data } = await sbClient.auth.getSession();
+  if (data?.session) iniciarNube(data.session); else pantallaLogin();
+  sbClient.auth.onAuthStateChange(ev => { if (ev === "SIGNED_OUT" && sb) location.reload(); });
 }
 boot();
 })();
